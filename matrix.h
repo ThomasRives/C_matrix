@@ -13,8 +13,8 @@ typedef float matrix_content;
 
 
 struct matrix_s {
-    int nb_of_lines;
-    int nb_of_columns;
+    unsigned int nb_of_lines;
+    unsigned int nb_of_columns;
     matrix_content** content;
 };
 
@@ -44,7 +44,20 @@ int is_matrix_square(struct matrix_s matrix);
  * @param nb_of_col The number of columns of the matrix.
  * @result A new matrix.
 */
-struct matrix_s create_matrix(int nb_of_lines, int nb_of_col);
+struct matrix_s create_matrix(unsigned int nb_of_lines, unsigned int nb_of_col);
+
+
+/**
+ * @brief Init a matrix with the given values.
+ *
+ * The provided content shall have the correct dimensions.
+ *
+ * @param matrix The matrix to initialize.
+ * @param content The content of the matrix as an array. IT must be provided
+ * line by line. USe an array since allocating and managing arrays is easier
+ * from outside this library.
+ */
+void init_matrix(struct matrix_s* matrix, matrix_content* content);
 
 
 /**
@@ -201,10 +214,10 @@ matrix_content matrix_det(struct matrix_s matrix);
 */
 struct matrix_s matrix_extract(
     struct matrix_s matrix,
-    int line_begin,
-    int col_begin,
-    int line_end,
-    int col_end
+    unsigned int line_begin,
+    unsigned int col_begin,
+    unsigned int line_end,
+    unsigned int col_end
 );
 
 
@@ -218,7 +231,7 @@ struct matrix_s matrix_extract(
  */
 struct matrix_s remove_line_from_matrix(
     struct matrix_s matrix,
-    int line_to_remove
+    unsigned int line_to_remove
 );
 
 
@@ -232,7 +245,7 @@ struct matrix_s remove_line_from_matrix(
  */
 struct matrix_s remove_column_from_matrix(
     struct matrix_s matrix,
-    int column_to_remove
+    unsigned int column_to_remove
 );
 
 
@@ -247,8 +260,8 @@ struct matrix_s remove_column_from_matrix(
  */
 struct matrix_s remove_line_and_column_from_matrix(
     struct matrix_s matrix,
-    int line_to_remove,
-    int column_to_remove
+    unsigned int line_to_remove,
+    unsigned int column_to_remove
 );
 
 
