@@ -2,8 +2,20 @@
 
 A simple implementation of matrixes in C.
 
-This library contains simple operations, matrix product, transpose, traces,
-etc...
+This library contains simple operations like:
+- matrix product
+- transpose
+- trace
+- determinant
+- extraction
+- remove line
+- remove column
+- co matrix
+- left and right pseudo invert
+- term to term operation
+- all terms operation
+- print
+
 
 If you need to change the type of the matrix content, simply change the
 ```c

@@ -7,14 +7,19 @@
 #include <stdarg.h>
 
 
-#define LENGTH_PRINT 10
-
+/** The type of the content of the matrix. */
 typedef float matrix_content;
 
 
+/**
+ * A structure that represent a matrix.
+ */
 struct matrix_s {
+    /** The number of lines in the matrix. */
     unsigned int nb_of_lines;
+    /** The number of columns in the matrix. */
     unsigned int nb_of_columns;
+    /** The matrix content. Note that it is allocated on the heap. */
     matrix_content** content;
 };
 
