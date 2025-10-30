@@ -31,7 +31,7 @@ typedef <your-type> matrix_content;
 A very simple example that illustrate how the library shall be used:
 
 ```c
-struct matrix_s my_mat = create_matrix(5, 5);
+struct matrix_s my_mat = matrix_create(5, 5);
     matrix_content init[25] = {
             1. ,2. ,3. , 4. ,5.,
             6. ,7. ,8. ,9. ,10.,
@@ -40,18 +40,18 @@ struct matrix_s my_mat = create_matrix(5, 5);
             21.,22.,23.,24.,25.,
         };
 
-    init_matrix(&my_mat, (matrix_content*) init);
-    struct matrix_s my_mat2 = create_matrix(5, 5);
-    init_matrix(&my_mat2, (matrix_content*) init);
+    matrix_init(&my_mat, (matrix_content*) init);
+    struct matrix_s my_mat2 = matrix_create(5, 5);
+    matrix_init(&my_mat2, (matrix_content*) init);
 
 
-    print_matrix(my_mat);
+    matrix_print(my_mat);
 
-    struct matrix_s prod_res = matrix_prod(my_mat, my_mat2);
-    print_matrix(prod_res);
+    struct matrix_s prod_res = matrix_product(my_mat, my_mat2);
+    matrix_print(prod_res);
 
     // Do not forget to delete the matrix to free memory.
-    delete_matrix(&prod_res);
-    delete_matrix(&my_mat2);
-    delete_matrix(&my_mat);
+    matrix_delete(&prod_res);
+    matrix_delete(&my_mat2);
+    matrix_delete(&my_mat);
 ```

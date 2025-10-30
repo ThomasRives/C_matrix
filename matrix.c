@@ -6,13 +6,13 @@
 #include "utils.h"
 
 
-int is_matrix_init(struct matrix_s matrix) {
+int matrix_is_init(struct matrix_s matrix) {
     return matrix.content == NULL ? 0 : 1;
 }
 
 
-int is_matrix_square(struct matrix_s matrix) {
-    return matrix.nb_of_lines == matrix.nb_of_columns ? 1 : 0;
+int matrix_is_square(struct matrix_s matrix) {
+    return matrix.row_nb == matrix.col_nb ? 1 : 0;
 }
 
 
@@ -27,19 +27,19 @@ matrix_content mypow(matrix_content a, int exp) {
 }
 
 
-struct matrix_s create_matrix(unsigned int nb_lines, unsigned int nb_col) {
+struct matrix_s matrix_create(unsigned int row_nb, unsigned int nb_col) {
     struct matrix_s matrix = {
-        .nb_of_lines = nb_lines,
-        .nb_of_columns = nb_col,
+        .row_nb = row_nb,
+        .col_nb = nb_col,
         .content = NULL
     };
 
-    matrix_content** mat = malloc(nb_lines*sizeof(matrix_content*));
+    matrix_content** mat = malloc(row_nb * sizeof(matrix_content*));
 
     if (mat == NULL)
         return matrix;
 
-    for (unsigned int i = 0; i < nb_lines; i++) {
+    for (unsigned int i = 0; i < row_nb; i++) {
         mat[i] = calloc(nb_col, sizeof(matrix_content));
         if (mat[i] == NULL) {
             for (unsigned int j = 0; j < i; j++)
@@ -54,22 +54,22 @@ struct matrix_s create_matrix(unsigned int nb_lines, unsigned int nb_col) {
 }
 
 
-void init_matrix(struct matrix_s* matrix, matrix_content* content) {
-    if (!is_matrix_init(*matrix))
+void matrix_init(struct matrix_s* matrix, matrix_content* content) {
+    if (!matrix_is_init(*matrix))
         return;
 
-    for (unsigned int i = 0; i < matrix->nb_of_lines; i++)
-        for (unsigned int j = 0; j < matrix->nb_of_columns; j++)
-            matrix->content[i][j] = content[i * matrix->nb_of_lines + j];
+    for (unsigned int i = 0; i < matrix->row_nb; i++)
+        for (unsigned int j = 0; j < matrix->col_nb; j++)
+            matrix->content[i][j] = content[i * matrix->row_nb + j];
 }
 
 
 
-void delete_matrix(struct matrix_s* matrix) {
-    if (!is_matrix_init(*matrix))
+void matrix_delete(struct matrix_s* matrix) {
+    if (!matrix_is_init(*matrix))
         return;
 
-    for (unsigned int i = 0; i < matrix->nb_of_lines; i++)
+    for (unsigned int i = 0; i < matrix->row_nb; i++)
         free(matrix->content[i]);
 
     free(matrix->content);
@@ -77,15 +77,15 @@ void delete_matrix(struct matrix_s* matrix) {
 }
 
 
-struct matrix_s copy_matrix(struct matrix_s matrix) {
+struct matrix_s matrix_copy(struct matrix_s matrix) {
     struct matrix_s res =
-        create_matrix(matrix.nb_of_lines, matrix.nb_of_columns);
+        matrix_create(matrix.row_nb, matrix.col_nb);
 
-    if (!is_matrix_init(matrix) || !is_matrix_init(res))
+    if (!matrix_is_init(matrix) || !matrix_is_init(res))
         return res;
 
-    for (unsigned int i = 0; i < res.nb_of_lines; i++)
-        for (unsigned int j = 0; j < res.nb_of_columns; j++)
+    for (unsigned int i = 0; i < res.row_nb; i++)
+        for (unsigned int j = 0; j < res.col_nb; j++)
             res.content[i][j] = matrix.content[i][j];
 
     return res;
@@ -97,27 +97,27 @@ struct matrix_s matrix_term_to_term_opp(
     struct matrix_s matrix_b,
     matrix_content (*operation)(matrix_content, matrix_content)
 ) {
-    unsigned int nb_of_lines = matrix_a.nb_of_lines;
-    unsigned int nb_of_cols = matrix_a.nb_of_columns;
+    unsigned int row_nb = matrix_a.row_nb;
+    unsigned int nb_of_cols = matrix_a.col_nb;
 
     struct matrix_s res = {
-        .nb_of_lines = matrix_a.nb_of_lines,
-        .nb_of_columns = matrix_a.nb_of_columns,
+        .row_nb = matrix_a.row_nb,
+        .col_nb = matrix_a.col_nb,
         .content = NULL
     };
 
     if (
-        matrix_a.nb_of_lines != matrix_b.nb_of_lines ||
-        matrix_a.nb_of_columns != matrix_b.nb_of_columns
+        matrix_a.row_nb != matrix_b.row_nb ||
+        matrix_a.col_nb != matrix_b.col_nb
     )
         return res;
 
-    res = create_matrix(nb_of_lines, nb_of_cols);
+    res = matrix_create(row_nb, nb_of_cols);
 
-    if (!is_matrix_init(res))
+    if (!matrix_is_init(res))
         return res;
 
-    for (unsigned int i = 0; i < nb_of_lines; i++)
+    for (unsigned int i = 0; i < row_nb; i++)
         for (unsigned int j = 0; j< nb_of_cols; j++)
             res.content[i][j] =
                 operation(matrix_a.content[i][j], matrix_b.content[i][j]);
@@ -132,46 +132,46 @@ struct matrix_s matrix_all_terms_opp(
     matrix_content (*operation)(matrix_content, matrix_content)
 ) {
     struct matrix_s res = {
-        .nb_of_lines = matrix.nb_of_lines,
-        .nb_of_columns = matrix.nb_of_columns,
+        .row_nb = matrix.row_nb,
+        .col_nb = matrix.col_nb,
         .content = NULL
     };
 
-    res = create_matrix(matrix.nb_of_lines, matrix.nb_of_columns);
+    res = matrix_create(matrix.row_nb, matrix.col_nb);
 
-    if (!is_matrix_init(res))
+    if (!matrix_is_init(res))
         return res;
 
-    for (unsigned int i = 0; i < matrix.nb_of_lines; i++)
-        for (unsigned int j = 0; j < matrix.nb_of_columns; j++)
+    for (unsigned int i = 0; i < matrix.row_nb; i++)
+        for (unsigned int j = 0; j < matrix.col_nb; j++)
             res.content[i][j] += operation(nb, matrix.content[i][j]);
 
     return res;
 }
 
 
-struct matrix_s matrix_prod(
+struct matrix_s matrix_product(
     struct matrix_s matrix_a,
     struct matrix_s matrix_b
 ) {
     struct matrix_s res = {
-        .nb_of_lines = matrix_a.nb_of_lines,
-        .nb_of_columns = matrix_b.nb_of_columns,
+        .row_nb = matrix_a.row_nb,
+        .col_nb = matrix_b.col_nb,
         .content = NULL
     };
 
-    if (matrix_a.nb_of_columns != matrix_b.nb_of_lines)
+    if (matrix_a.col_nb != matrix_b.row_nb)
         return res;
 
-    res = create_matrix(res.nb_of_lines, res.nb_of_columns);
+    res = matrix_create(res.row_nb, res.col_nb);
 
-    if (!is_matrix_init(res))
+    if (!matrix_is_init(res))
         return res;
 
-    for (unsigned int i = 0; i < matrix_a.nb_of_lines; i++)
-        for (unsigned int j = 0; j < matrix_b.nb_of_columns; j++) {
+    for (unsigned int i = 0; i < matrix_a.row_nb; i++)
+        for (unsigned int j = 0; j < matrix_b.col_nb; j++) {
             matrix_content cij = 0;
-            for (unsigned int k = 0; k < matrix_a.nb_of_columns; k++)
+            for (unsigned int k = 0; k < matrix_a.col_nb; k++)
                 cij += matrix_a.content[i][k] * matrix_b.content[k][j];
 
             res.content[i][j] = cij;
@@ -181,10 +181,10 @@ struct matrix_s matrix_prod(
 }
 
 
-void print_matrix(struct matrix_s matrix) {
-    for (unsigned int i = 0; i < matrix.nb_of_lines; i++) {
+void matrix_print(struct matrix_s matrix) {
+    for (unsigned int i = 0; i < matrix.row_nb; i++) {
         printf("| ");
-        for (unsigned int j = 0; j < matrix.nb_of_columns; j++)
+        for (unsigned int j = 0; j < matrix.col_nb; j++)
             printf("\t%.2f", matrix.content[i][j]);
         printf("\t|\n");
     }
@@ -192,11 +192,11 @@ void print_matrix(struct matrix_s matrix) {
 
 
 matrix_content matrix_trace(struct matrix_s matrix) {
-    if (!is_matrix_square(matrix))
+    if (!matrix_is_square(matrix))
         return 0;
 
     matrix_content trace = 0;
-    for (unsigned int i = 0; i < matrix.nb_of_lines; i++)
+    for (unsigned int i = 0; i < matrix.row_nb; i++)
         trace += matrix.content[i][i];
 
     return trace;
@@ -205,18 +205,18 @@ matrix_content matrix_trace(struct matrix_s matrix) {
 
 struct matrix_s matrix_transpose(struct matrix_s matrix) {
     struct matrix_s res = {
-        .nb_of_lines = matrix.nb_of_columns,
-        .nb_of_columns = matrix.nb_of_lines,
+        .row_nb = matrix.col_nb,
+        .col_nb = matrix.row_nb,
         .content = NULL
     };
 
-    res = create_matrix(res.nb_of_lines, res.nb_of_columns);
+    res = matrix_create(res.row_nb, res.col_nb);
 
-    if (!is_matrix_init(res))
+    if (!matrix_is_init(res))
         return res;
 
-    for (unsigned int i = 0; i < matrix.nb_of_lines; i++)
-        for (unsigned int j = 0; j < matrix.nb_of_columns; j++)
+    for (unsigned int i = 0; i < matrix.row_nb; i++)
+        for (unsigned int j = 0; j < matrix.col_nb; j++)
             res.content[j][i] = matrix.content[i][j];
 
     return res;
@@ -224,36 +224,36 @@ struct matrix_s matrix_transpose(struct matrix_s matrix) {
 
 
 matrix_content matrix_det(struct matrix_s matrix) {
-    if (!is_matrix_square(matrix))
+    if (!matrix_is_square(matrix))
         return 0;
 
-    if (matrix.nb_of_lines == 1)
+    if (matrix.row_nb == 1)
         return matrix.content[0][0];
 
-    if (matrix.nb_of_lines == 2)
+    if (matrix.row_nb == 2)
         return (
             matrix.content[0][0] * matrix.content[1][1] -
             matrix.content[1][0]* (matrix.content[0][1])
         );
 
     int det = 0;
-    for (unsigned int i = 0; i < matrix.nb_of_lines; i++) {
+    for (unsigned int i = 0; i < matrix.row_nb; i++) {
         struct matrix_s under_mat =
-            create_matrix(matrix.nb_of_lines - 1, matrix.nb_of_columns - 1);
+            matrix_create(matrix.row_nb - 1, matrix.col_nb - 1);
 
-        if (!is_matrix_init(under_mat))
+        if (!matrix_is_init(under_mat))
             return 0;
 
-        for (unsigned int k = 0; k < matrix.nb_of_lines - 1; k++) {
+        for (unsigned int k = 0; k < matrix.row_nb - 1; k++) {
             for (unsigned int l = 0; l < i; l++)
                 under_mat.content[k][l] = matrix.content[k+1][l];
-            for (unsigned int l = i; l < matrix.nb_of_columns-1; l++)
+            for (unsigned int l = i; l < matrix.col_nb-1; l++)
                 under_mat.content[k][l] = matrix.content[k+1][l+1];
         }
 
         det += mypow(-1,i) * matrix.content[0][i] * matrix_det(under_mat);
 
-        delete_matrix(&under_mat);
+        matrix_delete(&under_mat);
     }
 
     return det;
@@ -262,32 +262,32 @@ matrix_content matrix_det(struct matrix_s matrix) {
 
 struct matrix_s matrix_extract(
     struct matrix_s matrix,
-    unsigned int line_begin,
+    unsigned int row_begin,
     unsigned int col_begin,
-    unsigned int line_end,
+    unsigned int row_end,
     unsigned int col_end
 ) {
     struct matrix_s res = {
-        .nb_of_lines = 0,
-        .nb_of_columns = 0,
+        .row_nb = 0,
+        .col_nb = 0,
         .content = NULL
     };
 
-    if (line_begin > matrix.nb_of_lines || line_end > matrix.nb_of_lines)
+    if (row_begin > matrix.row_nb || row_end > matrix.row_nb)
         return res;
 
-    if (col_begin > matrix.nb_of_columns || col_end > matrix.nb_of_columns)
+    if (col_begin > matrix.col_nb || col_end > matrix.col_nb)
         return res;
 
-    if (line_end < line_begin || col_end < col_begin)
+    if (row_end < row_begin || col_end < col_begin)
         return res;
 
-    res = create_matrix(line_end - line_begin + 1, col_end - col_begin + 1);
+    res = matrix_create(row_end - row_begin + 1, col_end - col_begin + 1);
 
-    if (!is_matrix_init(res))
+    if (!matrix_is_init(res))
         return res;
 
-    for (unsigned int i = line_begin; i <= line_end; i++)
+    for (unsigned int i = row_begin; i <= row_end; i++)
         for (unsigned int j = col_begin; j <= col_end; j++)
             res.content[i][j] = matrix.content[i][j];
 
@@ -295,30 +295,30 @@ struct matrix_s matrix_extract(
 }
 
 
-struct matrix_s remove_line_from_matrix(
+struct matrix_s matrix_remove_line(
     struct matrix_s matrix,
-    unsigned int line_to_remove
+    unsigned int row_to_remove
 ) {
     struct matrix_s res = {
-        .nb_of_lines = matrix.nb_of_lines - 1,
-        .nb_of_columns = matrix.nb_of_columns,
+        .row_nb = matrix.row_nb - 1,
+        .col_nb = matrix.col_nb,
         .content = NULL
     };
 
-    if (line_to_remove > matrix.nb_of_lines)
+    if (row_to_remove > matrix.row_nb)
         return res;
 
-    res = create_matrix(matrix.nb_of_lines - 1, matrix.nb_of_columns);
+    res = matrix_create(matrix.row_nb - 1, matrix.col_nb);
 
-    if (!is_matrix_init(res))
+    if (!matrix_is_init(res))
         return res;
 
-    for (unsigned int i = 0; i < matrix.nb_of_lines; i++) {
-        if (i == line_to_remove)
+    for (unsigned int i = 0; i < matrix.row_nb; i++) {
+        if (i == row_to_remove)
             continue;
 
-        for (unsigned int j = 0; j < matrix.nb_of_columns; j++)
-            if (i > line_to_remove)
+        for (unsigned int j = 0; j < matrix.col_nb; j++)
+            if (i > row_to_remove)
                 res.content[i-1][j] = matrix.content[i][j];
             else
                 res.content[i][j] = matrix.content[i][j];
@@ -328,28 +328,28 @@ struct matrix_s remove_line_from_matrix(
 }
 
 
-struct matrix_s remove_column_from_matrix(
+struct matrix_s matrix_remove_column(
     struct matrix_s matrix,
     unsigned int column_to_remove
 ) {
     struct matrix_s res = {
-        .nb_of_lines = matrix.nb_of_lines,
-        .nb_of_columns = matrix.nb_of_columns - 1,
+        .row_nb = matrix.row_nb,
+        .col_nb = matrix.col_nb - 1,
         .content = NULL
     };
 
-    if (column_to_remove > matrix.nb_of_columns)
+    if (column_to_remove > matrix.col_nb)
         return res;
 
-    res = create_matrix(matrix.nb_of_lines, matrix.nb_of_columns - 1);
+    res = matrix_create(matrix.row_nb, matrix.col_nb - 1);
 
-    if (!is_matrix_init(res))
+    if (!matrix_is_init(res))
         return res;
 
-    for (unsigned int j = 0; j < matrix.nb_of_columns; j++) {
+    for (unsigned int j = 0; j < matrix.col_nb; j++) {
         if (j == column_to_remove)
             continue;
-        for (unsigned int i = 0; i < matrix.nb_of_lines; i++)
+        for (unsigned int i = 0; i < matrix.row_nb; i++)
             if (j > column_to_remove)
                 res.content[i][j-1] = matrix.content[i][j];
             else
@@ -360,36 +360,36 @@ struct matrix_s remove_column_from_matrix(
 }
 
 
-struct matrix_s remove_line_and_column_from_matrix(
+struct matrix_s matrix_remove_line_and_column(
     struct matrix_s matrix,
-    unsigned int line_to_remove,
+    unsigned int row_to_remove,
     unsigned int column_to_remove
 ) {
     // Do not use other functions for performance reasons
 
     struct matrix_s res = {
-        .nb_of_lines = matrix.nb_of_lines - 1,
-        .nb_of_columns = matrix.nb_of_columns - 1,
+        .row_nb = matrix.row_nb - 1,
+        .col_nb = matrix.col_nb - 1,
         .content = NULL
     };
 
     if (
-        column_to_remove > matrix.nb_of_columns ||
-        line_to_remove > matrix.nb_of_lines
+        column_to_remove > matrix.col_nb ||
+        row_to_remove > matrix.row_nb
     )
         return res;
 
-    res = create_matrix(matrix.nb_of_lines - 1, matrix.nb_of_columns - 1);
+    res = matrix_create(matrix.row_nb - 1, matrix.col_nb - 1);
 
-    if (!is_matrix_init(res))
+    if (!matrix_is_init(res))
         return res;
 
-    for (unsigned int i = 0; i < matrix.nb_of_lines; i++) {
-        if (i == line_to_remove)
+    for (unsigned int i = 0; i < matrix.row_nb; i++) {
+        if (i == row_to_remove)
             continue;
-        unsigned int line_nb_in_new = i > line_to_remove ? i-1 : i;
+        unsigned int line_nb_in_new = i > row_to_remove ? i-1 : i;
 
-        for (unsigned int j = 0; j < matrix.nb_of_columns; j++) {
+        for (unsigned int j = 0; j < matrix.col_nb; j++) {
             if (j == column_to_remove)
                 continue;
 
@@ -404,33 +404,33 @@ struct matrix_s remove_line_and_column_from_matrix(
 }
 
 
-struct matrix_s co_matrix(struct matrix_s matrix) {
+struct matrix_s matrix_co(struct matrix_s matrix) {
     struct matrix_s res = {
-        .nb_of_lines = matrix.nb_of_lines,
-        .nb_of_columns = matrix.nb_of_columns,
+        .row_nb = matrix.row_nb,
+        .col_nb = matrix.col_nb,
         .content = NULL
     };
 
-    if (!is_matrix_square(matrix))
+    if (!matrix_is_square(matrix))
         return res;
 
-    res = create_matrix(matrix.nb_of_lines, matrix.nb_of_columns);
+    res = matrix_create(matrix.row_nb, matrix.col_nb);
 
-    if (!is_matrix_init(res))
+    if (!matrix_is_init(res))
         return res;
 
-    for (unsigned int i = 0; i < matrix.nb_of_lines; i++)
-        for (unsigned int j = 0; j < matrix.nb_of_columns; j++) {
+    for (unsigned int i = 0; i < matrix.row_nb; i++)
+        for (unsigned int j = 0; j < matrix.col_nb; j++) {
             struct matrix_s under_mat =
-                remove_line_and_column_from_matrix(matrix, i, j);
+                matrix_remove_line_and_column(matrix, i, j);
 
-            if (!is_matrix_init(under_mat)) {
-                delete_matrix(&res);
+            if (!matrix_is_init(under_mat)) {
+                matrix_delete(&res);
                 return res;
             }
 
             res.content[i][j] = mypow(-1,i+j) * matrix_det(under_mat);
-            delete_matrix(&under_mat);
+            matrix_delete(&under_mat);
         }
 
     return res;
@@ -459,17 +459,17 @@ matrix_content simple_division(matrix_content a, matrix_content b) {
 
 struct matrix_s matrix_invert(struct matrix_s matrix) {
     struct matrix_s pre_res = {
-        .nb_of_lines = matrix.nb_of_columns,
-        .nb_of_columns = matrix.nb_of_lines,
+        .row_nb = matrix.col_nb,
+        .col_nb = matrix.row_nb,
         .content = NULL
     };
 
-    if (!is_matrix_square(matrix))
+    if (!matrix_is_square(matrix))
         return pre_res;
 
-    struct matrix_s mat_inv_trans = co_matrix(matrix);
+    struct matrix_s mat_inv_trans = matrix_co(matrix);
 
-    if (!is_matrix_init(mat_inv_trans))
+    if (!matrix_is_init(mat_inv_trans))
         return pre_res;
 
     float det = matrix_det(matrix);
@@ -480,85 +480,85 @@ struct matrix_s matrix_invert(struct matrix_s matrix) {
     matrix_content coef = 1 / det;
 
     pre_res = matrix_transpose(mat_inv_trans);
-    delete_matrix(&mat_inv_trans);
+    matrix_delete(&mat_inv_trans);
 
-    if (!is_matrix_init(pre_res))
+    if (!matrix_is_init(pre_res))
         return pre_res;
 
     struct matrix_s res = matrix_all_terms_opp(pre_res, coef, simple_product);
-    delete_matrix(&pre_res);
+    matrix_delete(&pre_res);
 
     return res;
 }
 
 
-struct matrix_s left_pseudo_inv(struct matrix_s matrix) {
+struct matrix_s matrix_left_pseudo_inv(struct matrix_s matrix) {
     struct matrix_s res = {
-        .nb_of_lines = matrix.nb_of_columns,
-        .nb_of_columns = matrix.nb_of_lines,
+        .row_nb = matrix.col_nb,
+        .col_nb = matrix.row_nb,
         .content = NULL
     };
 
-    if (matrix.nb_of_columns > matrix.nb_of_lines)
+    if (matrix.col_nb > matrix.row_nb)
         return res;
 
     struct matrix_s mat_trans = matrix_transpose(matrix);
-    if (!is_matrix_init(mat_trans))
+    if (!matrix_is_init(mat_trans))
         return res;
 
-    struct matrix_s term_1 = matrix_prod(mat_trans, matrix);
-    if (!is_matrix_init(term_1)) {
-        delete_matrix(&mat_trans);
+    struct matrix_s term_1 = matrix_product(mat_trans, matrix);
+    if (!matrix_is_init(term_1)) {
+        matrix_delete(&mat_trans);
         return res;
     }
 
     struct matrix_s term_1_inv = matrix_invert(term_1);
-    delete_matrix(&term_1);
+    matrix_delete(&term_1);
 
-    if (!is_matrix_init(term_1_inv)) {
-        delete_matrix(&mat_trans);
+    if (!matrix_is_init(term_1_inv)) {
+        matrix_delete(&mat_trans);
         return res;
     }
 
-    res = matrix_prod(term_1_inv, mat_trans);
-    delete_matrix(&mat_trans);
-    delete_matrix(&term_1_inv);
+    res = matrix_product(term_1_inv, mat_trans);
+    matrix_delete(&mat_trans);
+    matrix_delete(&term_1_inv);
 
     return res;
 }
 
 
-struct matrix_s right_pseudo_inv(struct matrix_s matrix) {
+struct matrix_s matrix_right_pseudo_inv(struct matrix_s matrix) {
     struct matrix_s res = {
-        .nb_of_lines = matrix.nb_of_columns,
-        .nb_of_columns = matrix.nb_of_lines,
+        .row_nb = matrix.col_nb,
+        .col_nb = matrix.row_nb,
         .content = NULL
     };
 
-    if (matrix.nb_of_columns < matrix.nb_of_lines)
+    if (matrix.col_nb < matrix.row_nb)
         return res;
 
     struct matrix_s mat_trans = matrix_transpose(matrix);
-    if (!is_matrix_init(mat_trans))
+    if (!matrix_is_init(mat_trans))
         return res;
 
-    struct matrix_s term_1 = matrix_prod(matrix, mat_trans);
-    if (!is_matrix_init(term_1)) {
-        delete_matrix(&mat_trans);
+    struct matrix_s term_1 = matrix_product(matrix, mat_trans);
+    if (!matrix_is_init(term_1)) {
+        matrix_delete(&mat_trans);
         return res;
     }
 
     struct matrix_s term_1_inv = matrix_invert(term_1);
-    delete_matrix(&term_1);
-    if (!is_matrix_init(term_1_inv)) {
-        delete_matrix(&mat_trans);
+    matrix_delete(&term_1);
+    if (!matrix_is_init(term_1_inv)) {
+        matrix_delete(&mat_trans);
         return res;
     }
 
-    res = matrix_prod(mat_trans, term_1_inv);
+    res = matrix_product(mat_trans, term_1_inv);
 
-    delete_matrix(&mat_trans);
-    delete_matrix(&term_1_inv);
+    matrix_delete(&mat_trans);
+    matrix_delete(&term_1_inv);
 
     return res;
 }

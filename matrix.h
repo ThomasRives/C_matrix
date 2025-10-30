@@ -16,9 +16,9 @@ typedef float matrix_content;
  */
 struct matrix_s {
     /** The number of lines in the matrix. */
-    unsigned int nb_of_lines;
+    unsigned int row_nb;
     /** The number of columns in the matrix. */
-    unsigned int nb_of_columns;
+    unsigned int col_nb;
     /** The matrix content. Note that it is allocated on the heap. */
     matrix_content** content;
 };
@@ -30,7 +30,7 @@ struct matrix_s {
  * @param matrix The matrix to check.
  * @return An integer: 0 if the matrix is not initialized, else 1.
  */
-int is_matrix_init(struct matrix_s matrix);
+int matrix_is_init(struct matrix_s matrix);
 
 
 /**
@@ -39,17 +39,17 @@ int is_matrix_init(struct matrix_s matrix);
  * @param matrix The matrix to test.
  * @return An integer: 0 if the matrix is not square, else 1.
  */
-int is_matrix_square(struct matrix_s matrix);
+int matrix_is_square(struct matrix_s matrix);
 
 
 /**
  * @brief Create a matrix.
  *
- * @param nb_of_lines The number of lines of the matrix.
- * @param nb_of_col The number of columns of the matrix.
+ * @param row_nb The number of lines of the matrix.
+ * @param col_nb The number of columns of the matrix.
  * @result A new matrix.
 */
-struct matrix_s create_matrix(unsigned int nb_of_lines, unsigned int nb_of_col);
+struct matrix_s matrix_create(unsigned int row_nb, unsigned int col_nb);
 
 
 /**
@@ -62,7 +62,7 @@ struct matrix_s create_matrix(unsigned int nb_of_lines, unsigned int nb_of_col);
  * line by line. USe an array since allocating and managing arrays is easier
  * from outside this library.
  */
-void init_matrix(struct matrix_s* matrix, matrix_content* content);
+void matrix_init(struct matrix_s* matrix, matrix_content* content);
 
 
 /**
@@ -70,7 +70,7 @@ void init_matrix(struct matrix_s* matrix, matrix_content* content);
  *
  * @param matrix The address of the matrix to delete.
 */
-void delete_matrix(struct matrix_s* matrix);
+void matrix_delete(struct matrix_s* matrix);
 
 
 /**
@@ -79,7 +79,7 @@ void delete_matrix(struct matrix_s* matrix);
  * @param matrix The matrix to copy.
  * @return A new matrix that is the copy of the original matrix.
  */
-struct matrix_s copy_matrix(struct matrix_s matrix);
+struct matrix_s matrix_copy(struct matrix_s matrix);
 
 
 /**
@@ -163,7 +163,10 @@ struct matrix_s matrix_all_terms_opp(
  * @param matrix_b The second matrix.
  * @result A new matrix (two dimension table), the product of 2 matrix.
 */
-struct matrix_s matrix_prod(struct matrix_s matrix_a, struct matrix_s matrix_b);
+struct matrix_s matrix_product(
+    struct matrix_s matrix_a,
+    struct matrix_s matrix_b
+);
 
 
 /**
@@ -171,7 +174,7 @@ struct matrix_s matrix_prod(struct matrix_s matrix_a, struct matrix_s matrix_b);
 *
 * @param matrix The matrix to print.
 */
-void print_matrix(struct matrix_s matrix);
+void matrix_print(struct matrix_s matrix);
 
 
 /**
@@ -211,17 +214,17 @@ matrix_content matrix_det(struct matrix_s matrix);
  * @brief Extract a matrix from an other.
  *
  * @param matrix The original matrix.
- * @param line_begin The first line to extract.
+ * @param row_begin The first line to extract.
  * @param col_begin The first column to extract.
- * @param line_end The last line to extract.
+ * @param row_end The last line to extract.
  * @param col_end The last column to extract.
  * @result A new matrix that corresponds to the extracted matrix.
 */
 struct matrix_s matrix_extract(
     struct matrix_s matrix,
-    unsigned int line_begin,
+    unsigned int row_begin,
     unsigned int col_begin,
-    unsigned int line_end,
+    unsigned int row_end,
     unsigned int col_end
 );
 
@@ -230,13 +233,13 @@ struct matrix_s matrix_extract(
  * @brief Remove a line from a matrix.
  *
  * @param matrix The matrix to remove the line .
- * @param line_to_remove The line number to remove (starting from 0).
+ * @param row_to_remove The line number to remove (starting from 0).
  * @return A new matrix that correspond to the given matrix without the
  * given line.
  */
-struct matrix_s remove_line_from_matrix(
+struct matrix_s matrix_remove_line(
     struct matrix_s matrix,
-    unsigned int line_to_remove
+    unsigned int row_to_remove
 );
 
 
@@ -248,7 +251,7 @@ struct matrix_s remove_line_from_matrix(
  * @return A new matrix that correspond to the given matrix without the
  * given column.
  */
-struct matrix_s remove_column_from_matrix(
+struct matrix_s matrix_remove_column(
     struct matrix_s matrix,
     unsigned int column_to_remove
 );
@@ -258,14 +261,14 @@ struct matrix_s remove_column_from_matrix(
  * @brief Remove a line and a column from a matrix.
  *
  * @param matrix The matrix to remove the line and column from.
- * @param line_to_remove The line number to remove (starting from 0).
+ * @param row_to_remove The line number to remove (starting from 0).
  * @param column_to_remove The column number to remove (starting from 0).
  * @return A new matrix that correspond to the given matrix without the
  * given line and given column.
  */
-struct matrix_s remove_line_and_column_from_matrix(
+struct matrix_s matrix_remove_line_and_column(
     struct matrix_s matrix,
-    unsigned int line_to_remove,
+    unsigned int row_to_remove,
     unsigned int column_to_remove
 );
 
@@ -277,7 +280,7 @@ struct matrix_s remove_line_and_column_from_matrix(
  * @param nb_col: the number of columns of the matrix.
  * @result A new matrix that correspond to theco matrix of the given matrix.
 */
-struct matrix_s co_matrix(struct matrix_s matrix);
+struct matrix_s matrix_co(struct matrix_s matrix);
 
 
 /**
@@ -296,7 +299,7 @@ struct matrix_s matrix_invert(struct matrix_s matrix);
  * @result A new matrix that corresponds to the pseudo invert left of the
  * matrix.
 */
-struct matrix_s left_pseudo_inv(struct matrix_s matrix);
+struct matrix_s matrix_left_pseudo_inv(struct matrix_s matrix);
 
 
 /**
@@ -306,7 +309,7 @@ struct matrix_s left_pseudo_inv(struct matrix_s matrix);
  * @result A new matrix that corresponds to the pseudo invert right of the
  * matrix.
 */
-struct matrix_s right_pseudo_inv(struct matrix_s matrix);
+struct matrix_s matrix_right_pseudo_inv(struct matrix_s matrix);
 
 
 #endif //MATRIX_H
